@@ -4,6 +4,7 @@ import joi from "joi"
 import dotenv from "dotenv"
 import { MongoClient } from "mongodb"
 import bcrypt from "bcrypt"
+import { v4 as uuidV4 } from "uuid"
 
 dotenv.config()
 
@@ -33,6 +34,27 @@ const usuarioCadastradoSchema = joi.object({
 
 app.post("/", async (req, res) => {
     const { email, password } = req.body
+
+    try {
+       const usuarioLogado = await db.collection("usuarios").findOne({ email })
+
+       if(!usuarioLogado) return res.status(400).send("Usuário ou senha incorretos")
+
+       const verificaSenha = bcrypt.compareSync(password, usuarioLogado.password)
+
+       if (!verificaSenha) return res.status(400).send("Usuário ou senha incorretos")
+
+       const token = uuidV4()
+
+       await db.collection("sessoes").insertOne({idUsuario: usuarioLogado._id, token})
+
+       return res.status(200).send(token)
+
+    } catch (error) {
+        res.sendStatus(500)
+        console.log(error)
+
+    }
 })
 
 
