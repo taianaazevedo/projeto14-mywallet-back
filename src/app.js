@@ -33,13 +33,13 @@ const usuarioCadastradoSchema = joi.object({
 });
 
 const entradaSchema = joi.object({
-    valor: joi.number().required(),
+    valor: joi.number().precision(2).required(),
     descricao: joi.string().required()
 })
 
 
 const saidaSchema = joi.object({
-    valor: joi.number().required(),
+    valor: joi.number().precision(2).required(),
     descricao: joi.string().required()
 })
 
@@ -59,7 +59,7 @@ app.post("/", async (req, res) => {
 
         await db.collection("sessoes").insertOne({ idUsuario: usuarioLogado._id, token })
 
-        return res.status(200).send(token)
+        return res.status(200).send({usuarioLogado, token})
 
     } catch (error) {
         res.sendStatus(500)
