@@ -59,7 +59,7 @@ app.post("/", async (req, res) => {
 
         await db.collection("sessoes").insertOne({ idUsuario: usuarioLogado._id, token })
 
-        return res.status(200).send({usuarioLogado, token})
+        return res.status(200).send({ usuarioLogado, token })
 
     } catch (error) {
         res.sendStatus(500)
@@ -105,7 +105,7 @@ app.post("/nova-entrada", async (req, res) => {
 
     if (!token) return res.status(422).send("Informe o token!")
 
-    const { error } = entradaSchema.validate({ valor, descricao }, { abortEarly: false })
+    const { value, error } = entradaSchema.validate({ valor, descricao }, { abortEarly: false })
 
     if (error) {
         const erroEntrada = error.details.map(err => err.message)
@@ -117,7 +117,7 @@ app.post("/nova-entrada", async (req, res) => {
 
         if (!checaUsuarioOnline) return res.status(401).send("Você não tem autorização para cadastrar uma nova entrada")
 
-        await db.collection("carteira").insertOne({ valor, tipo: "entrada", descricao, dia: dayjs().format("DD/MM"), idUsuario: checaUsuarioOnline.idUsuario })
+        await db.collection("carteira").insertOne({ valor: value.valor, tipo: "entrada", descricao, dia: dayjs().format("DD/MM"), idUsuario: checaUsuarioOnline.idUsuario })
 
         res.status(201).send("Nova entrada cadastrada")
 
@@ -136,7 +136,7 @@ app.post("/nova-saida", async (req, res) => {
 
     if (!token) return res.status(422).send("Informe o token!")
 
-    const { error } = saidaSchema.validate({ valor, descricao }, { abortEarly: false })
+    const { value, error } = saidaSchema.validate({ valor, descricao }, { abortEarly: false })
 
     if (error) {
         const erroEntrada = error.details.map(err => err.message)
@@ -148,7 +148,7 @@ app.post("/nova-saida", async (req, res) => {
 
         if (!checaUsuarioOnline) return res.status(401).send("Você não tem autorização para cadastrar uma nova saída")
 
-        await db.collection("carteira").insertOne({ valor, tipo: "saida", descricao, dia: dayjs().format("DD/MM"), idUsuario: checaUsuarioOnline.idUsuario })
+        await db.collection("carteira").insertOne({ valor: value.valor, tipo: "saida", descricao, dia: dayjs().format("DD/MM"), idUsuario: checaUsuarioOnline.idUsuario })
 
         res.status(201).send("Nova saída cadastrada")
 
@@ -173,9 +173,9 @@ app.get("/home", async (req, res) => {
 
         if (!checaUsuarioOnline) return res.status(401).send("Você não tem autorização para acessar à carteira")
 
-        const carteira = await db.collection("carteira").find({idUsuario: (checaUsuarioOnline.idUsuario)}).toArray()
+        const carteira = await db.collection("carteira").find({ idUsuario: (checaUsuarioOnline.idUsuario) }).toArray()
 
-        if(!carteira) return res.sendStatus(401)
+        if (!carteira) return res.sendStatus(401)
 
         return res.send(carteira)
 
